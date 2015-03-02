@@ -118,7 +118,11 @@ read_hashmap_internal(Tokens, Acc) ->
 
 read_atom(Tokens) ->
     {Token, Tokens2} = next(Tokens),
-    {[{symbol, Token}], Tokens2}.
+    case re:run(Token, "^-?[0-9]+$") of
+        nomatch -> {[{symbol, Token}], Tokens2};
+        _ -> {Int, _Rest} = string:to_integer(Token),
+             {[Int], Tokens2}
+    end.
 
 tokenizer(String) ->
     remove_empties(re:split(String, "[ ,]*(~@|~|[[]{}()'`~^@]|\"(?:\\\\.|[^\\\\\"])*\"|;.*|[^\\s\\[\\]{}('\"`,;)]*)", [{return, list}])).
