@@ -15,6 +15,8 @@ main() ->
     case io:get_line("mal-user> ") of
         eof -> ok;
         Line -> CleanLine = re:replace(Line, "(^\\s+)|(\\s+$)", "", [global,{return,list}]),
+                %Read = read(CleanLine),
+                %io:format("~s~n", [print(eval(Read))]),
                 try read(CleanLine) of
                     Read -> io:format("~s~n", [print(eval(Read))])
                 catch _:Error -> io:format("~p~n", [Error])

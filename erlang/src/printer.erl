@@ -10,6 +10,8 @@ pr_str(MalStructure) ->
         symbol -> Content;
         number -> Content;
         list -> ["("| [string:join(lists:map(fun pr_str/1, Content), " ")|")"]];
+        vector -> ["["| [string:join(lists:map(fun pr_str/1, Content), " ")|"]"]];
+        hashmap -> ["{"| [string:join(lists:map(fun pr_str/1, Content), " ")|"}"]];
         quote -> ["(quote "| [string:join(lists:map(fun pr_str/1, Content), " ")|")"]];
         quasiquote -> ["(quasiquote "| [string:join(lists:map(fun pr_str/1, Content), " ")|")"]];
         unquote -> ["(unquote "| [string:join(lists:map(fun pr_str/1, Content), " ")|")"]];

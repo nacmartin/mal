@@ -25,6 +25,8 @@ read_form(Tokens) ->
             case Token of
                 [] -> io:format("end of file~n");
                 "(" -> read_list(Tokens2);
+                "[" -> read_vector(Tokens2);
+                "{" -> read_hashmap(Tokens2);
                 "'" -> read_quote(Tokens2);
                 "`" -> read_quasiquote(Tokens2);
                 "~" -> read_unquote(Tokens2);
@@ -74,6 +76,44 @@ read_list_internal(Tokens, Acc) ->
             {Acc, Tokens2};
         _ -> {Read, ToRead} = read_form([Token|Tokens2]),
              read_list_internal(ToRead, Acc ++ Read)
+    end.
+
+read_vector(Tokens) ->
+    case next(Tokens) of
+        [] -> io:format("Expected: [~n");
+        {"[", Tokens2} -> {Read, Remaining} = read_vector_internal(Tokens2),
+                          {[{vector, Read}], Remaining}
+    end.
+
+read_vector_internal(Tokens) -> read_vector_internal(Tokens, []).
+read_vector_internal([], _Acc) ->
+    erlang:error("expected ']', got EOF");
+read_vector_internal(Tokens, Acc) ->
+    {Token, Tokens2} = next(Tokens),
+    case Token of
+        "]" -> 
+            {Acc, Tokens2};
+        _ -> {Read, ToRead} = read_form([Token|Tokens2]),
+             read_vector_internal(ToRead, Acc ++ Read)
+    end.
+
+read_hashmap(Tokens) ->
+    case next(Tokens) of
+        [] -> io:format("Expected: {~n");
+        {"{", Tokens2} -> {Read, Remaining} = read_hashmap_internal(Tokens2),
+                          {[{hashmap, Read}], Remaining}
+    end.
+
+read_hashmap_internal(Tokens) -> read_hashmap_internal(Tokens, []).
+read_hashmap_internal([], _Acc) ->
+    erlang:error("expected '}', got EOF");
+read_hashmap_internal(Tokens, Acc) ->
+    {Token, Tokens2} = next(Tokens),
+    case Token of
+        "}" -> 
+            {Acc, Tokens2};
+        _ -> {Read, ToRead} = read_form([Token|Tokens2]),
+             read_hashmap_internal(ToRead, Acc ++ Read)
     end.
 
 read_atom(Tokens) ->
