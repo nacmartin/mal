@@ -1,9 +1,10 @@
 -module(env).
 
--export([new/1, set/3, get/2, find/2, newRepl/0]).
+-export([new/3, set/3, get/2, find/2, newRepl/0]).
 
-new(Outer) ->
-    {Outer, dict:new()}.
+new(Outer, Binds, Exprs) ->
+    BindExpr = lists:zip(Binds, Exprs),
+    {Outer ,lists:foldl(fun({{symbol, Binding}, Expression}, Dict) -> dict:store(Binding, Expression, Dict) end, dict:new(), BindExpr)}.
 
 set(Key, Value, {Outer, Env}) ->
     {{Outer, dict:store(Key, Value, Env)}, Value}.
@@ -24,13 +25,8 @@ get(Key, {Outer, Env}) ->
     end.
 
 newRepl() ->
-    ReplEnv = [{"+", fun (A, B) -> A + B end},
-               {"-", fun (A, B) -> A - B end},
-               {"*", fun (A, B) -> A * B end},
-               {"/", fun (A, B) -> erlang:trunc(A / B) end}
-              ],
+    ReplEnv = core:core_ns(),
     lists:foldl(fun({Symbol, Fun}, Env) -> 
                         {Repl, _Val} = env:set(Symbol, Fun, Env),
                         Repl
-                end, env:new(nil), ReplEnv).
-
+                end, env:new(nil, [], []), ReplEnv).

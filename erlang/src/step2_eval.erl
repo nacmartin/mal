@@ -8,12 +8,10 @@ read(Arg) ->
 eval({list, Content}, ReplEnv) ->
     {list, Content2} = eval_ast({list, Content}, ReplEnv),
     [Func| Args] = Content2,
-    io:format("fuunc ~p~n", [Func]),
     F = find_func(Func, ReplEnv),
     erlang:apply(F, Args);
 
 eval(Ast, ReplEnv) ->
-    io:format("ast is ~p~n", [Ast]),
     eval_ast(Ast, ReplEnv).
 
 find_func(Symbol, []) ->

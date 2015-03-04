@@ -13,7 +13,8 @@ eval({list, Content}, ReplEnv) ->
                             env:set(Name, Evald, ReplEnv2);
         {symbol, "let*"} -> [{list, Bindings}, Body] = Args,
                             ReplEnv2 = let_bind(Bindings, ReplEnv),
-                            eval(Body, ReplEnv2);
+                            {_ReplEnv3, Evald} = eval(Body, ReplEnv2),
+                            {ReplEnv, Evald};
 
         _ -> 
             {ReplEnv2, {list, Content2}} = eval_ast({list, Content}, ReplEnv),
@@ -36,7 +37,7 @@ eval_ast({symbol, Symbol}, ReplEnv) ->
         nil -> Symbol;
         Value -> Value
     end;
-eval_ast(Ast, ReplEnv) ->
+eval_ast(Ast, _ReplEnv) ->
     Ast.
 
 let_bind([], ReplEnv) -> 

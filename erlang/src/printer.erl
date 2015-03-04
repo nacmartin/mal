@@ -8,6 +8,7 @@ pr_str({Type, Content}) ->
     case Type of
         symbol -> Content;
         nil -> "";
+        function -> "*";
         list -> ["("| [string:join(lists:map(fun pr_str/1, Content), " ")|")"]];
         vector -> ["["| [string:join(lists:map(fun pr_str/1, Content), " ")|"]"]];
         hashmap -> ["{"| [string:join(lists:map(fun pr_str/1, Content), " ")|"}"]];
@@ -19,6 +20,9 @@ pr_str({Type, Content}) ->
 
 pr_str(Atom) ->
     case is_integer(Atom) of
-        false -> Atom;
+        false -> case is_function(Atom) of
+                     true -> "*";
+                     false -> Atom
+                 end;
         true -> erlang:integer_to_list(Atom)
     end.
