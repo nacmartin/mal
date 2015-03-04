@@ -7,6 +7,7 @@ pr_str([]) ->
 pr_str({Type, Content}) ->
     case Type of
         symbol -> Content;
+        nil -> "";
         list -> ["("| [string:join(lists:map(fun pr_str/1, Content), " ")|")"]];
         vector -> ["["| [string:join(lists:map(fun pr_str/1, Content), " ")|"]"]];
         hashmap -> ["{"| [string:join(lists:map(fun pr_str/1, Content), " ")|"}"]];
