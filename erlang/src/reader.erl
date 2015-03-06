@@ -134,8 +134,8 @@ read_atom(Tokens) ->
     end.
 
 stringize(Token) ->
-    Token2 = re:replace(Token, "\\\\\"", "\""),
-    Token3 = re:replace(Token2, "\\\\n", "~n"),
+    Token2 = re:replace(Token, "(?!^\")(?!\"$)\\\\\"", "\"", [global, {return, list}]),
+    Token3 = re:replace(Token2, "\\\\n", "~n", [global, {return, list}]),
     Token3.
 
 tokenizer(String) ->

@@ -3,63 +3,63 @@
 -export([core_ns/0]).
 
 core_ns() ->
-    [{"list", fun (Env, Args) -> {list, Args} end},
-     {"list?", fun (Env, [Arg]) -> case Arg of
+    [{"list", fun (Env, Args) -> {Env, {list, Args}} end},
+     {"list?", fun (Env, [Arg]) -> {Env, case Arg of
                                   {list, _} -> true;
                                   _ -> false
-                              end end},
+                                         end} end},
      {"empty?", fun (Env, Arg) -> 
-                        case Arg of
+                        {Env, case Arg of
                                  [{list, []}] -> true;
                                  _ -> false
-                             end end},
+                              end} end},
      {"count", fun (Env, Arg) -> 
-                       case Arg of
+                       {Env, case Arg of
                            [{list, Body}] -> length(Body);
                            [nil] -> 0;
                            _SMT -> erlang:error("count applied to not a list")
-                       end end},
-     {"prn-str", fun (Env, Args) ->
+                             end} end},
+     {"pr-str", fun (Env, Args) ->
                          PrStr = printer:pr_str(true),
-                         string:join(lists:map(PrStr, Args), " ")
+                         {Env, string:join(lists:map(PrStr, Args), " ")}
                  end},
-     {"prn", fun (Env, Args) ->
+     {"str", fun (Env, Args) ->
                      PrStr = printer:pr_str(false),
                      io:format("~s~n", [string:join(lists:map(PrStr, Args), " ")]),
-                     nil
+                     {Env, nil}
              end},
-     {"prntln", fun (Env, Args) ->
+     {"println", fun (Env, Args) ->
                          PrStr = printer:pr_str(false),
-                         string:join(lists:map(PrStr, Args), " ")
+                         {Env, string:join(lists:map(PrStr, Args), " ")}
                  end},
      {"prn", fun (Env, Args) ->
                      PrStr = printer:pr_str(true),
                      io:format("~s~n", [string:join(lists:map(PrStr, Args), " ")]),
-                     nil
+                     {Env, nil}
              end},
-     {">", fun (Env, [A, B]) -> case A > B of
+     {">", fun (Env, [A, B]) -> {Env, case A > B of
                                true -> true;
                                false -> false
-                           end end},
-     {">=", fun (Env, [A, B]) -> case A >= B of
+                                      end} end},
+     {">=", fun (Env, [A, B]) -> {Env, case A >= B of
                                true -> true;
                                false -> false
-                           end end},
-     {"<", fun (Env, [A, B]) -> case A < B of
+                                       end} end},
+     {"<", fun (Env, [A, B]) -> {Env, case A < B of
                                true -> true;
                                false -> false
-                           end end},
-     {"<=", fun (Env, [A, B]) -> case A =< B of
+                                end} end},
+     {"<=", fun (Env, [A, B]) -> {Env, case A =< B of
                                true -> true;
                                false -> false
-                           end end},
-     {"=", fun (Env, [A, B]) -> case A =:= B of
+                                       end} end},
+     {"=", fun (Env, [A, B]) -> {Env, case A =:= B of
                                true -> true;
                                false -> false
-                           end end},
+                                      end} end},
      {"+", fun (Env, [A, B]) -> 
-                   A + B end},
+                   {Env, A + B} end},
      {"-", fun (Env, [A, B]) -> 
-                   A - B end},
-     {"*", fun (Env, [A, B]) -> A * B end},
-     {"/", fun (Env, [A, B]) -> erlang:trunc(A / B) end}].
+                   {Env, A - B} end},
+     {"*", fun (Env, [A, B]) -> {Env, A * B} end},
+     {"/", fun (Env, [A, B]) -> {Env, erlang:trunc(A / B)} end}].

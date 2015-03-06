@@ -5,8 +5,8 @@
 pr_str(PrintReadability) ->
     fun(Atom) -> pr_str(Atom, PrintReadability) end.
 
-pr_str([], _PrintReadability) ->
-    ok;
+%pr_str([], _PrintReadability) ->
+%    "\"\"";
 pr_str({Type, Content}, PrintReadability) ->
     PrStr = pr_str(PrintReadability),
     case Type of
@@ -23,19 +23,20 @@ pr_str({Type, Content}, PrintReadability) ->
     end;
 
 pr_str(Atom, PrintReadability) ->
-    Res = case is_integer(Atom) of
-              false -> case is_function(Atom) of
-                           true -> "*";
-                           false -> printable_string(Atom)
-                       end;
-              true -> erlang:integer_to_list(Atom)
-          end.
+    case is_integer(Atom) of
+        false -> case is_function(Atom) of
+                     true -> "*";
+                     false -> Str = printable_string(Atom),
+                              Str
+                 end;
+        true -> erlang:integer_to_list(Atom)
+    end.
 
 printable_string(Atom) ->
     case is_list(Atom) of
         true ->
-            Atom2 = re:replace(Atom, "(?!^\")(?!\"$)\"", "\\\\\"", [global]),
-            Atom3 = re:replace(Atom2, "\~n", "\\\\n", [global]),
+            Atom2 = re:replace(Atom, "(?!^\")(?!\"$)\"", "\\\\\"", [global, {return, list}]),
+            Atom3 = re:replace(Atom2, "\~n", "\\\\n", [global, {return, list}]),
             Atom3;
         false ->
             Atom
