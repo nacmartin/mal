@@ -1,13 +1,30 @@
 -module(env).
 
--export([new/3, set/3, get/2, find/2, newRepl/0]).
+-export([new/3, set/3, get/2, find/2, newRepl/0, get_all/1, get_all_kv/1]).
 
 new(Outer, Binds, Exprs) ->
-    BindExpr = lists:zip(Binds, Exprs),
-    {Outer ,lists:foldl(fun({{symbol, Binding}, Expression}, Dict) -> dict:store(Binding, Expression, Dict) end, dict:new(), BindExpr)}.
+    {Outer, build_bind_exprs(Binds, Exprs, dict:new())}.
+
+build_bind_exprs([], [], Env) -> Env;
+build_bind_exprs([{symbol, "&"}|[Bind]], Exprs, Env) -> bind_variadic(Bind, Exprs, Env);
+build_bind_exprs([{symbol, Bind}|Binds], [Expr|Exprs], Env) ->
+    build_bind_exprs(Binds, Exprs, dict:store(Bind, Expr, Env)).
+
+bind_variadic({symbol, Bind}, Exprs, Env) ->
+    dict:store(Bind, {list, Exprs}, Env).
 
 set(Key, Value, {Outer, Env}) ->
     {{Outer, dict:store(Key, Value, Env)}, Value}.
+
+get_all_kv({nil, Env}) ->
+    dict:to_list(Env);
+get_all_kv({Outer, Env}) ->
+    get_all_kv(Outer) ++ dict:to_list(Env).
+
+get_all({nil, Env}) ->
+    dict:fetch_keys(Env);
+get_all({Outer, Env}) ->
+    get_all(Outer) ++ dict:fetch_keys(Env).
 
 find(Key, {Outer, Env}) ->
     case dict:find(Key, Env) of
