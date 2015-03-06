@@ -1,9 +1,14 @@
 -module(env).
 
--export([new/3, set/3, get/2, find/2, newRepl/0, get_all/1, get_all_kv/1]).
+-export([new/3, set/3, get/2, find/2, newRepl/0, get_all/1, get_all_kv/1, combine/2]).
 
 new(Outer, Binds, Exprs) ->
     {Outer, build_bind_exprs(Binds, Exprs, dict:new())}.
+
+combine(Father, {nil, C2}) -> {Father, C2};
+combine(Father, {C1, C2}) ->
+    {combine(Father, C1), C2}.
+
 
 build_bind_exprs([], [], Env) -> Env;
 build_bind_exprs([{symbol, "&"}|[Bind]], Exprs, Env) -> bind_variadic(Bind, Exprs, Env);
